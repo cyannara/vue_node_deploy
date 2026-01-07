@@ -189,14 +189,6 @@ $ nvm alias default v24.11.0
 # git clone
 git clone https://github.com/cyannara/project.git
 
-# unzip 설치
-sudo apt install unzip
-
-# zip 파일전송
-
-# 압출풀기
-unzip backend.zip
-
 # .env 파일 전송
 ```
 
@@ -279,19 +271,25 @@ $ ps -ef | grep node
 $ kill -9 27367
 ```
 
-### 7. PM2로 Node 서버 실행
+### 7. [PM2](https://pm2.keymetrics.io/docs/usage/quick-start/)로 Node 서버 실행
+
+#### PM2와 Nodemon 차이
+
+**Nodemon**은 `개발`할 때 `파일 변경` 감지를 통한 `자동 재시작`에 특화된 도구로 주로 개발환경에서 사용  
+**PM2**는 `프로세스 관리` 및 운영에 중점을 둔 도구로 `자동복구`, 클러스터링, 로드밸런싱 등 `프로덕션 환경`에 필요한 강력한 기능들을 제공하여 `무중단서비스`에 적합
+
+#### PM2 장점
 
 클러스터 모드: Node.js 부하 분산 및 제로 다운타임 리로드  
 https://inpa.tistory.com/entry/node-%F0%9F%93%9A-PM2-모듈-사용법-클러스터-무중단-서비스  
 Node JS 프로세서를 관리하는 패키지
 
-- 백그라운드에서 데몬으로 실행이 됨.
-- 프로세스 매니저로 node 서버가 갑자기 꺼져버려도 자동으로 재구동도 가능하며 터미널을 끄더라도 서버가 꺼지지 않음.
-- Node.js는 싱글 스레드 기반이지만, 멀티 코어 혹은 하이퍼 스레딩을 사용할 수 있게 해준다.
-- 클라이언트로부터 요청이 올 때 알아서 요청을 여러 노드 프로세스에 고르게 분배한다.( 로드 밸런싱 )
-- 개발할 때 nodemon 을 쓴다면 배포할 때는 pm2를 쓴다.
+- `백그라운드`에서 데몬으로 실행이 됨. 터미널을 끄더라도 서버가 꺼지지 않음.
+- 프로세스 매니저로 node 서버가 갑자기 꺼져버려도 자동으로 `재구동`도 가능 .
+- Node.js는 싱글 스레드 기반이지만, `멀티 코어` 혹은 하이퍼 스레딩을 사용할 수 있게 해준다.
+- 클라이언트로부터 요청이 올 때 알아서 요청을 여러 노드 프로세스에 고르게 분배(`로드 밸런싱`)
 
-단점
+#### PM2 단점
 
 - 세션을 메모리에 저장하는 경우 메모리를 공유할 수 없음. 세션 메모리가 있는 프로세스로 요청이 가면 로그인된 상태가 되고, 세션 메모리가 없는 프로세스로 요청이 가면 로그인되지 않은 상태가 됨.
 - 하나의 프로세스 내에서 돌아가는 멀티 스레드는 메모리를 공유할 수 있지만, 멀티 프로세스는 프로세스간의 메모리 공유를 할 수 없다.
@@ -329,28 +327,29 @@ pm2 start app.js --watch -i 2
 
 ### pm2 실행옵션
 
-| 옵션              | 설명                                                                   | 예시                                   |
-| :---------------- | :--------------------------------------------------------------------- | :------------------------------------- |
-| --watch           | 실행된 프로젝트의 변경사항을 감지하여 서버를 자동 재시작(reload)       |                                        |
-| --ignore-watch    | watch 옵션 사용 시에 특정 폴더 경로는 무시해야 할 때                   |                                        |
-| --i max(코어개수) | Node.js의 싱글 스레드를 보완하기 위한 클러스터 모드                    |                                        |
-| --name 이름       | 앱 이름 지정                                                           |                                        |
-| --log 로그경로    | 로그파일 경로 지정                                                     |                                        |
-| scale app +2      | 프로세스 수 증가 또는 감소                                             |                                        |
-| status            | 현재 프로세스 리스트트                                                 |                                        |
-| ls                |                                                                        |                                        |
-| stop              | 프로세스 중지                                                          |                                        |
-| restart           | 프로세스 재시작                                                        |                                        |
-| reload            | 프로세스 리로드                                                        |                                        |
-| delete 2          | 특정 프로세스 중지                                                     |                                        |
-| delete app        | 이름이 app인 모든 프로세스 중지                                        |                                        |
-| kill              | 프로세스 전체 삭제                                                     |                                        |
-| log               | 전체 프로세스 로그 보기                                                | pm2 log                                |
-|                   | 특정 프로세스 로그 보기                                                | pm2 log 프로세스이름 또는 프로세스아디 |
-|                   | 프로세스 로그 200줄까지만 보기기                                       | pm2 log --lines 200                    |
-|                   | 에러 로그 보기                                                         | pm2 log --err 200                      |
-| show              | 프로세스 정보                                                          |                                        |
-| monit             | 모니터링. 실시간 상태 확인(각 프로세스의 메모리, CPU 사용율, 현재상태) |                                        |
+| 옵션                | 설명                                                                   | 예시                                   |
+| :------------------ | :--------------------------------------------------------------------- | :------------------------------------- |
+| --watch             | 실행된 프로젝트의 변경사항을 감지하여 서버를 자동 재시작(reload)       |                                        |
+| --ignore-watch      | watch 옵션 사용 시에 특정 폴더 경로는 무시해야 할 때                   |                                        |
+| --i max(코어개수)   | Node.js의 싱글 스레드를 보완하기 위한 클러스터 모드                    |                                        |
+| --name 이름         | 앱 이름 지정                                                           |                                        |
+| --log 로그경로      | 로그파일 경로 지정                                                     |                                        |
+| scale app +2        | 프로세스 수 증가 또는 감소                                             |                                        |
+| status /ls / status | 현재 프로세스 리스트                                                   |                                        |
+| stop                | 프로세스 중지                                                          |                                        |
+| restart             | 프로세스 재시작                                                        |                                        |
+| reload              | 프로세스 리로드                                                        |                                        |
+| delete 2            | 특정 프로세스 중지                                                     |                                        |
+| delete app          | 이름이 app인 모든 프로세스 중지                                        |                                        |
+| kill                | 프로세스 전체 삭제                                                     |                                        |
+| log                 | 전체 프로세스 로그 보기                                                | pm2 log                                |
+|                     | 특정 프로세스 로그 보기                                                | pm2 log 프로세스이름 또는 프로세스아디 |
+|                     | 프로세스 로그 200줄까지만 보기기                                       | pm2 log --lines 200                    |
+|                     | 에러 로그 보기                                                         | pm2 log --err 200                      |
+| show                | 프로세스 정보                                                          |                                        |
+| monit               | 모니터링. 실시간 상태 확인(각 프로세스의 메모리, CPU 사용율, 현재상태) |                                        |
+| save                | 지금 실행 중인 모든 Node 프로세스 목록을 저장                          |                                        |
+| startup             | 서버가 부팅될 때 PM2가 자동으로 실행되도록 OS에 등록                   |                                        |
 
 restart와 reload 차이점  
 restart는 모든 프로세스를 죽인 다음 다시 시작하는 방식으로 아주 잠깐동안 서비스를 이용하지 못하는 상황이 생길 수 있음.  
@@ -386,7 +385,14 @@ sudo systemctl start nginx        # sudo service nginx start
 http://서버ip:80
 ```
 
-#### Nginx proxy 서버 설정
+#### [Nginx를 reverse proxy server로 설정하기](https://dreaminggore00.tistory.com/8)
+
+`rever proxy server`란 proxy server의 한 종류로서, 클라이언트로부터 요청을 받아와 내부망의 서버로 포워드하는 서버를 말합니다. 클라이언트와 서버 간의 중간 매개체 역할을 합니다.  
+reverse proxy server를 이용하면 서버 트래픽 과부하를 방지할 수 있고(load balancing),  
+ssl 보안적용, 리다이렉션, 방화벽 설정, 도메인 적용 등의 업무를 실서버 대신 수행할 수 있고(web acceleration),  
+무엇보다 클라이언트에서 실제 서버를 거치지 않기 때문에 보안측면(security and anonymity)에서도 뛰어 납니다.
+
+![https://dreaminggore00.tistory.com/8](image-2.png)
 
 ```sh
 sudo vi /etc/nginx/sites-available/default
@@ -405,6 +411,14 @@ server {
        }
 }
 ```
+
+`proxy_pass` 리다이렉트할 서버 주소  
+`proxy_redirect` default, off, redirect replacement 3가지의 value를 가질 수 있습니다. off는 혹시나 이전 레벨에서 설정된 proxy_redirect 영향을 삭제시키는 기능  
+`proxy_set_header` 브라우저 헤더에 저장할 정보
+
+proxy_pass http://127.0.0.1:3000/  
+ proxy_pass 뒤에 / 가 있으면  
+ /api/guestbook → /guestbook 으로 변환되어 Node에 전달됩니다.
 
 #### Nginx 서버 재시작
 
