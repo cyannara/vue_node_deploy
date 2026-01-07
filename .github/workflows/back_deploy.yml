@@ -21,22 +21,14 @@ jobs:
           npm install
           npm run build || true
 
-      - name: Upload to Server
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USER }}
-          key: ${{ secrets.KEY }}
-          source: "backapp/*"
-          target: ${{ secrets.BACK_PATH }}
-
-      - name: Restart Server
+      - name: Sync backend to server
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           script: |
+            rsync -av --delete backapp/ ${{ secrets.BACK_PATH }}/
             cd ${{ secrets.BACK_PATH }}
-            npm install
-            pm2 reload backapp || pm2 start app.js --name backapp
+            npm install --production
+            pm2 reload app || pm2 start app.js --name app
