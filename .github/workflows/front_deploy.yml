@@ -23,11 +23,11 @@ jobs:
           ls -al dist
 
       - name: Sync dist to server
-        uses: appleboy/ssh-action@v1.0.3
+        uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
-          script: |
-            pwd
-            rsync -rv --delete frontapp/dist/ /var/www/frontapp/
+          source: "frontapp/dist/*"
+          target: ${{ secrets.FRONT_PATH }}
+          rm: true

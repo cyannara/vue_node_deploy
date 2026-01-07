@@ -241,7 +241,19 @@ front 파일 sync
     username: ${{ secrets.USER }}
     key: ${{ secrets.KEY }}
     script: |
-      rsync -av --delete frontapp/dist/ ${{ secrets.FRONT_PATH }}/
+      rsync -rv --delete frontapp/dist/ ${{ secrets.FRONT_PATH }}/
+```
+
+```yml
+- name: Sync dist to server
+  uses: appleboy/scp-action@v0.1.7
+  with:
+    host: ${{ secrets.HOST }}
+    username: ${{ secrets.USER }}
+    key: ${{ secrets.KEY }}
+    source: "frontapp/dist/*"
+    target: ${{ secrets.FRONT_PATH }}
+    rm: true
 ```
 
 #### backapp workflow
