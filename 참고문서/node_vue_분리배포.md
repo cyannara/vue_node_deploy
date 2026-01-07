@@ -344,9 +344,7 @@ jobs:
             pm2 reload app || pm2 start app.js --name app
 ```
 
-GitHub Actions / ssh-action 은 로그인 쉘이 아닌 non-login shell로 실행되므로 $PATH 설정이 적용되지 않으므로 절대경로를 이용
+`npm install --omit=dev` 은 package.json 에 정의된 dependencies 만 설치함
 
-```bash
-which pm2
-which npm
-```
+- dependencies → 앱이 실제 실행될 때 필요한 모듈
+- devDependencies → 개발할 때만 필요한 모듈 (테스트, 빌드, 린트 등)

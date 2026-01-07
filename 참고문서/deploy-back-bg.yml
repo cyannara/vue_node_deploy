@@ -1,0 +1,47 @@
+name: Blue Green Backend Deploy
+
+on:
+  push:
+    paths:
+      - "backapp/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Upload new version
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          source: "backapp/*"
+          target: /home/ubuntu/apps/new
+
+      - name: Switch to idle server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          script: |
+            ACTIVE=$(grep 3001 /etc/nginx/conf.d/backend.conf && echo blue || echo green)
+
+            if [ "$ACTIVE" = "blue" ]; then
+              IDLE=green
+              PORT=3002
+            else
+              IDLE=blue
+              PORT=3001
+            fi
+
+            rsync -a /home/ubuntu/apps/new/ /home/ubuntu/apps/backapp/
+            pm2 restart back-$IDLE --update-env -- --port=$PORT
+
+            sleep 3
+
+            sed -i "s/$ACTIVE/$IDLE/" /etc/nginx/conf.d/backend.conf
+            nginx -s reload
