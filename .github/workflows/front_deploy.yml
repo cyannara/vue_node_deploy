@@ -29,5 +29,5 @@ jobs:
           username: ${{ secrets.USER }}
           key: ${{ secrets.KEY }}
           source: "frontapp/dist/*"
-          target: /var/www/
+          target: /var/www/frontapp
           rm: true

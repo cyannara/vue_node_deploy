@@ -115,7 +115,8 @@ sudo apt install unzip
 
 ```sh
 mkdir /var/www/frontapp
-sudo chmod 777 /var/www/frontapp
+sudo chown -R ubuntu:ubuntu /var/www
+sudo chmod -R 755 /var/www
 # dist 폴더의 파일들을 /var/www/frontapp 폴더로 복사
 ```
 
@@ -217,6 +218,42 @@ GitHub → Settings → Secrets → Actions
 | BACK_PATH  | node 소스 위치           |
 
 #### front workflow
+
+```yml
+name: Deploy Frontend
+
+on:
+  push:
+    paths:
+      - "frontapp/**"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: |
+          cd frontapp
+          npm install
+          npm run build
+          ls -al dist
+
+      - name: Sync dist to server
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USER }}
+          key: ${{ secrets.KEY }}
+          source: "frontapp/dist/*"
+          target: ${{ secrets.FRONT_PATH }}
+          rm: true
+```
 
 foont 파일 업로드. scp는 추가만 하고 삭제는 안 함.
 
