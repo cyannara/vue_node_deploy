@@ -21,6 +21,7 @@ jobs:
           source: "backapp/*"
           target: ${{ secrets.BACK_PATH }}
           rm: true
+          strip_components: 1
 
       - name: Restart Server
         uses: appleboy/ssh-action@v1.0.3
